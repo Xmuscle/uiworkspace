@@ -7,12 +7,7 @@ from uiw.constants import (
     DEFAULT_MAIN_BRANCH,
     DEFAULT_REFRESH_MODE,
     DEFAULT_SYNC_COMMIT_PREFIX,
-    DEFAULT_SYNC_IGNORE,
 )
-
-
-def default_sync_ignore() -> list[str]:
-    return list(DEFAULT_SYNC_IGNORE)
 
 
 def build_default_config_dict(svn_main: Path, git_main: Path, worktrees_root: Path) -> dict:
@@ -37,7 +32,7 @@ def build_default_config_dict(svn_main: Path, git_main: Path, worktrees_root: Pa
             "refresh_mode": DEFAULT_REFRESH_MODE,
             "sync_commit_prefix": DEFAULT_SYNC_COMMIT_PREFIX,
         },
-        "sync": {"ignore": default_sync_ignore()},
+        "sync": {},
         "apply": {
             "backup": True,
             "backup_root": backup_root.as_posix(),

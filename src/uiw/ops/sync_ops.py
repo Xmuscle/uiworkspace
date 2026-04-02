@@ -3,21 +3,66 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
+from uiw.constants import DEFAULT_SYNC_IGNORE
 from uiw.errors import DirtyWorkspaceError, ValidationError
+from uiw.infra.clock import now_stamp
 from uiw.infra.fs import mirror_tree
 from uiw.infra.process import RunResult
-from uiw.infra.clock import now_stamp
 from uiw.models import WorkspaceConfig
 from uiw.ops import git_ops, svn_ops
 
 
+def default_protected_sync_segments() -> set[str]:
+    return set(DEFAULT_SYNC_IGNORE)
+
+
+def normalize_ignore_rule(line: str) -> str | None:
+    rule = line.strip().replace("\\", "/")
+    if not rule or rule.startswith("#"):
+        return None
+    if rule.startswith("/"):
+        rule = rule[1:]
+    if rule.endswith("/"):
+        rule = rule[:-1]
+    return rule or None
+
+
+def load_ignore_file_rules(ignore_file: Path) -> tuple[set[str], list[str]]:
+    if not ignore_file.exists():
+        return set(), []
+    try:
+        content = ignore_file.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ValidationError(f"Failed to read ignore file: {ignore_file}") from exc
+
+    segments: set[str] = set()
+    prefixes: list[str] = []
+    for raw_line in content.splitlines():
+        rule = normalize_ignore_rule(raw_line)
+        if not rule:
+            continue
+        if "/" in rule:
+            prefixes.append(rule)
+        else:
+            segments.add(rule)
+    return segments, prefixes
+
+
 def build_sync_ignore_matcher(config: WorkspaceConfig) -> Callable[[Path], bool]:
-    ignored = set(config.sync.ignore)
+    ignored = default_protected_sync_segments()
+    ignore_file = config.paths.svn_main / ".ignore"
+    file_segments, file_prefixes = load_ignore_file_rules(ignore_file)
+    ignored.update(file_segments)
     worktrees_name = config.paths.worktrees_root.name
 
     def matcher(relative_path: Path) -> bool:
+        path_str = relative_path.as_posix()
         parts = set(relative_path.parts)
-        return bool(parts & ignored) or worktrees_name in parts
+        if worktrees_name in parts:
+            return True
+        if bool(parts & ignored):
+            return True
+        return any(path_str == prefix or path_str.startswith(f"{prefix}/") for prefix in file_prefixes)
 
     return matcher
 

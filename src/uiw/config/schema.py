@@ -41,7 +41,7 @@ def parse_workspace_config(data: dict[str, Any]) -> WorkspaceConfig:
         refresh_mode=_require(git_data, "refresh_mode", "git"),
         sync_commit_prefix=_require(git_data, "sync_commit_prefix", "git"),
     )
-    sync = SyncSettings(ignore=list(sync_data.get("ignore", [])))
+    sync = SyncSettings()
     apply = ApplySettings(
         backup=bool(_require(apply_data, "backup", "apply")),
         backup_root=Path(_require(apply_data, "backup_root", "apply")),
@@ -69,7 +69,7 @@ def workspace_config_to_dict(config: WorkspaceConfig) -> dict[str, Any]:
             "refresh_mode": config.git.refresh_mode,
             "sync_commit_prefix": config.git.sync_commit_prefix,
         },
-        "sync": {"ignore": list(config.sync.ignore)},
+        "sync": {},
         "apply": {
             "backup": config.apply.backup,
             "backup_root": config.apply.backup_root.as_posix(),

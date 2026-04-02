@@ -134,6 +134,10 @@ src/uiw/
 - `ApplyPlan`
 - `DoctorCheck`
 
+说明：
+- `SyncSettings` 当前仅作为保留扩展点，不再保存 `ignore` 列表
+- sync 的忽略规则由内建保护项和 `svn-main/.ignore` 决定
+
 这些模型使配置、状态和流程对象结构化，避免命令层直接操作原始 dict。
 
 ---
@@ -150,6 +154,10 @@ src/uiw/
 - `git`
 - `sync`
 - `apply`
+
+说明：
+- `sync` 配置段当前不再保存 `ignore` 列表
+- `sync` 的文件忽略规则默认从 `svn-main/.ignore` 读取
 
 ### 5.2 workspace registry
 位置：`config/workspaces.yaml`
@@ -196,7 +204,14 @@ src/uiw/
 稳定性保护：
 - `git-main` 必须存在且是 git repo：`src/uiw/ops/sync_ops.py:38`
 - `git-main` 有脏改动时拒绝：`src/uiw/ops/sync_ops.py:45`
-- 忽略 `.git`、`.svn` 和 `worktrees` 目录：`src/uiw/ops/sync_ops.py:13`
+- 永久保护 `.git`、`.svn` 和 `worktrees` 目录
+- 额外从 `svn-main/.ignore` 读取忽略规则
+
+`.ignore` 规则说明：
+- 空行忽略
+- `#` 开头为注释
+- 不带 `/` 的规则按路径段匹配
+- 带 `/` 的规则按相对 `svn-main` 的前缀路径匹配
 
 ### 6.3 new
 实现：`src/uiw/ops/workspace_ops.py:40`
@@ -295,6 +310,7 @@ CLI 层统一捕获入口：`src/uiw/cli.py:46`
 - registry：`tests/test_registry.py:1`
 - apply 解析：`tests/test_apply_ops.py:1`
 - workflow guard：`tests/test_workflow_guards.py:1`
+- `.ignore` 匹配规则：`tests/test_sync_ignore_file.py:1`
 
 已覆盖的关键稳定性场景：
 - dirty `git-main` 禁止 sync
@@ -329,7 +345,7 @@ uv run python -m compileall src tests
 ```
 
 最近验证结果：
-- `pytest`: 13 passed
+- `pytest`: 16 passed
 - `compileall`: 通过
 
 ---

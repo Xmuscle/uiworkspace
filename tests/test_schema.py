@@ -9,4 +9,4 @@ def test_parse_workspace_config_roundtrip_shape() -> None:
     config = parse_workspace_config(data)
     assert config.paths.svn_main == Path("D:/svn-main")
     assert config.git.main_branch == "main"
-    assert ".git" in config.sync.ignore
+    assert config.sync is not None

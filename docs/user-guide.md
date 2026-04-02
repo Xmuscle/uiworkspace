@@ -77,6 +77,7 @@ uiw init --svn D:/mmo-ui/svn-main --git D:/mmo-ui/git-main --worktrees D:/mmo-ui
 注意：
 - `svn`、`git`、`worktrees` 三个路径不能相同
 - `git-main` 若已有异常 `.git` 状态会拒绝初始化
+- `init` 不会自动创建 `svn-main/.ignore`，如需忽略同步内容请手工在 `svn-main` 下创建该文件
 
 ---
 
@@ -116,6 +117,26 @@ uiw sync --message "sync from svn 2026-03-30 10:30"
 1. 在 `svn-main` 中执行 `svn update`
 2. 将 `svn-main` 文件同步到 `git-main`
 3. 若有变更，则生成新的 baseline commit
+
+忽略规则来源：
+- 内建保护目录：如 `.git`、`.svn`、`worktrees`
+- `svn-main/.ignore`
+
+`.ignore` 支持：
+- 空行
+- `#` 注释
+- 不带 `/` 的路径段规则
+- 带 `/` 的相对路径前缀规则
+
+示例：
+
+```text
+# 忽略任意 node_modules 目录
+node_modules
+
+# 忽略指定子树
+docs/generated/
+```
 
 限制：
 - 若 `git-main` 有未提交改动，`sync` 会拒绝执行
@@ -377,6 +398,30 @@ uiw refresh-continue event-april
 
 ---
 
+### 5.1.1 `.ignore` 使用建议
+
+推荐把需要长期忽略的同步规则写在 `svn-main/.ignore`。
+
+示例：
+
+```text
+# 忽略缓存目录
+Temp
+
+# 忽略生成目录
+Library
+
+# 忽略指定子路径
+UI/Generated/
+```
+
+说明：
+- 不带 `/` 的规则会按路径段匹配
+- 带 `/` 的规则会按相对 `svn-main` 的路径前缀匹配
+- 当前不支持完整 gitignore 语法，也不支持 `!` 反向规则
+
+---
+
 ## 7. 常见问题
 
 ### 7.1 `sync` 失败：git-main has uncommitted changes
@@ -417,6 +462,17 @@ uiw refresh-continue event-april
 - 检查 worktree 当前文件状态
 - 确认是否有异常删除或未完成操作
 
+### 7.6 `.ignore` 没生效
+原因：
+- `.ignore` 不在 `svn-main` 根目录
+- 规则写法不符合当前支持的简化语法
+- 规则本身没有匹配到实际相对路径
+
+处理：
+- 确认文件路径为 `svn-main/.ignore`
+- 先用简单规则验证，例如 `Temp` 或 `UI/Generated/`
+- 再执行一次 `uiw sync`
+
 ---
 
 ## 8. 当前版本限制
@@ -425,6 +481,7 @@ uiw refresh-continue event-april
 - `remove` 还没有 `--force`
 - `doctor` 还不是完全一致性审计版
 - `apply` 还没有 dry-run
+- `.ignore` 目前不是完整 gitignore 语法，只支持注释、路径段规则和相对路径前缀规则
 - 输出样式还会继续优化
 - 真实 SVN/Git 集成测试还需要继续补齐
 

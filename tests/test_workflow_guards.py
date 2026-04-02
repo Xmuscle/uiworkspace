@@ -48,7 +48,7 @@ def make_config(tmp_path: Path) -> WorkspaceConfig:
             refresh_mode="merge",
             sync_commit_prefix="sync from svn",
         ),
-        sync=SyncSettings(ignore=[".git", ".svn"]),
+        sync=SyncSettings(),
         apply=ApplySettings(backup=True, backup_root=tmp_path / "logs" / "backups", mode="copy"),
     )
 

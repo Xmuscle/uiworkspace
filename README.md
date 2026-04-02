@@ -23,6 +23,8 @@ UI Workspace CLI (`uiw`) 是一个面向 SVN 团队的本地多工作区 CLI 工
 - `remove`
 - `doctor`
 
+`sync` 的忽略规则现在默认来自 `svn-main/.ignore`，不再使用 `sync.ignore` 配置项。
+
 ## 快速验证
 
 ```bash

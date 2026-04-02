@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 
@@ -25,7 +25,7 @@ class GitSettings:
 
 @dataclass(slots=True)
 class SyncSettings:
-    ignore: list[str] = field(default_factory=list)
+    pass
 
 
 @dataclass(slots=True)
