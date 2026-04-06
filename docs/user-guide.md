@@ -58,13 +58,13 @@ uv run --with pytest pytest
 命令：
 
 ```bash
-uiw init --svn <svn-main> --git <git-main> --worktrees <worktrees>
+uiw init <svn-main> <git-main> <worktrees>
 ```
 
 示例：
 
 ```bash
-uiw init --svn D:/mmo-ui/svn-main --git D:/mmo-ui/git-main --worktrees D:/mmo-ui/worktrees
+uiw init D:/mmo-ui/svn-main D:/mmo-ui/git-main D:/mmo-ui/worktrees
 ```
 
 作用：
@@ -78,6 +78,8 @@ uiw init --svn D:/mmo-ui/svn-main --git D:/mmo-ui/git-main --worktrees D:/mmo-ui
 - `svn`、`git`、`worktrees` 三个路径不能相同
 - `git-main` 若已有异常 `.git` 状态会拒绝初始化
 - `init` 不会自动创建 `svn-main/.ignore`，如需忽略同步内容请手工在 `svn-main` 下创建该文件
+- Windows 下如果路径用了引号，**不要以 `\` 结尾**，否则命令行可能把结尾引号吞掉，导致参数解析异常，例如报 `Missing argument 'WORKTREES'`
+- 推荐写法：去掉结尾反斜杠，例如 `uiw init "H:/path/to/svn-main" "G:/path/to/git-main" "G:/path/to/worktrees"`
 
 ---
 
@@ -490,7 +492,7 @@ UI/Generated/
 ## 9. 推荐命令速查
 
 ```bash
-uiw init --svn D:/mmo-ui/svn-main --git D:/mmo-ui/git-main --worktrees D:/mmo-ui/worktrees
+uiw init D:/mmo-ui/svn-main D:/mmo-ui/git-main D:/mmo-ui/worktrees
 
 uiw sync
 
