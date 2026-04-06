@@ -16,6 +16,7 @@ from uiw.commands import (
     new_cmd,
     refresh_cmd,
     remove_cmd,
+    svn_main_clear_cmd,
     sync_cmd,
 )
 
@@ -35,6 +36,7 @@ def register_commands() -> None:
         export_cmd,
         apply_cmd,
         remove_cmd,
+        svn_main_clear_cmd,
         doctor_cmd,
     ]:
         module.register(app)

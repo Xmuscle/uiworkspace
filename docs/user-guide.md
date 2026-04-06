@@ -313,6 +313,29 @@ svn commit
 - 工具会阻止 `../` 这类路径逃逸写入
 - 会先做文件备份
 
+### 5.8.1 回滚最近一次 apply
+
+```bash
+uiw svn-main-clear
+```
+
+作用：
+1. 读取最近一次 apply 生成的日志
+2. 根据该次 apply 的 `backup_dir` 恢复被覆盖或删除前的文件
+3. 删除该次 apply 新增到 `svn-main` 的文件
+4. 写一份 clear 操作日志
+
+适用场景：
+- 你刚 `apply` 完一个 worktree
+- 还不想立刻在 `svn-main` 手工整理并提交
+- 需要先把 `svn-main` 清回 apply 前状态，再继续 `apply` 另一个 worktree
+
+限制：
+- 只回滚最近一次 apply
+- 依赖最近一次 apply 生成的日志和备份目录
+- 它不是通用的 SVN 清理命令，不会自动执行 `svn revert`、`svn cleanup`、`svn add`、`svn delete`
+- 不能一次回退多次 apply 的累计结果
+
 ---
 
 ## 5.9 删除工作区
@@ -509,6 +532,7 @@ uiw diff event-spring --name-only
 uiw export event-spring
 
 uiw apply event-spring
+uiw svn-main-clear
 
 uiw remove event-spring
 
